@@ -1,0 +1,122 @@
+module AoC201602
+    ( runDay,
+      inputDirections,
+      makeMove,
+      Move(..),
+    ) where
+
+import Text.Parsec
+import Text.Parsec.String
+
+runDay :: IO ()
+runDay = do
+  let code = map (\x -> execute makeMove x) $ words inputDirections
+  let code' = map (\x -> execute makeMove' x) $ words inputDirections
+  putStrLn $ "2) The code is " ++ (show code) ++ "."
+  putStrLn $ "2) The second code is " ++ (show code') ++ "."
+  
+-- This isn't right - the startingLocation is reset each time. It shouldn't be. Need to have some combination of map + fold. Map should take/return return some sort of tuple of a move and location, and the location should move into the fold to be part of the next (set of) calls to map.
+
+type Location = Int
+data Move = Up | Down | Left | Right deriving Show
+
+-- Part 2
+
+makeMove' :: Location -> Move -> Location
+makeMove' 1 Down = 3
+makeMove' 1 _ = 1
+makeMove' 2 AoC201602.Right = 3
+makeMove' 2 Down = 6
+makeMove' 2 _ = 2
+makeMove' 3 Up = 1
+makeMove' 3 Down = 7
+makeMove' 3 AoC201602.Left = 2
+makeMove' 3 AoC201602.Right = 4
+makeMove' 4 AoC201602.Left = 3
+makeMove' 4 Down = 8
+makeMove' 4 _ = 4
+makeMove' 5 AoC201602.Right = 6
+makeMove' 5 _ = 5
+makeMove' 9 AoC201602.Left = 8
+makeMove' 9 _ = 9
+makeMove' 10 AoC201602.Right = 11
+makeMove' 10 Up = 6
+makeMove' 10 _ = 10
+makeMove' 11 Up = 7
+makeMove' 11 Down = 13
+makeMove' 11 AoC201602.Left = 10
+makeMove' 11 AoC201602.Right = 12
+makeMove' 12 AoC201602.Left = 11
+makeMove' 12 Up = 8
+makeMove' 12 _ = 12
+makeMove' 13 Up = 11
+makeMove' 13 _ = 13
+-- 6, 7, 8
+makeMove' x Up = x - 4
+makeMove' x Down = x + 4
+makeMove' x AoC201602.Left = x - 1
+makeMove' x AoC201602.Right = x + 1
+
+-- Part 1
+
+execute f xs =
+  case parsedMoves xs of
+    Prelude.Left msg -> show msg
+    Prelude.Right moves -> show $ makeMoves f moves
+
+--processAllKeys :: [[Move]] -> [Location]
+--processAllKeys xs = map (\x -> makeMoves makeMove x) xs
+
+makeMoves :: (Location -> Move -> Location) -> [Move] -> Location
+makeMoves f xs = foldl (\acc x -> f acc x) startingLocation xs
+
+makeMove :: Location -> Move -> Location
+makeMove 1 Up = 1
+makeMove 1 AoC201602.Left = 1
+makeMove 2 Up = 2
+makeMove 3 Up = 3
+makeMove 3 AoC201602.Right = 3
+makeMove 4 AoC201602.Left = 4
+makeMove 6 AoC201602.Right = 6
+makeMove 7 AoC201602.Left = 7
+makeMove 7 Down = 7
+makeMove 8 Down = 8
+makeMove 9 Down = 9
+makeMove 9 AoC201602.Right = 9
+makeMove x Up = x - 3
+makeMove x AoC201602.Left = x - 1
+makeMove x AoC201602.Right = x + 1
+makeMove x Down = x + 3
+
+startingLocation :: Location
+startingLocation = 5
+
+-- Parsing
+--parsedMoves :: String -> [Either ParseError [Move]]
+parsedMoves :: String -> Either ParseError [Move]
+parsedMoves xs = parse directionsParser "test" xs
+--parsedMoves xs = map (\x -> parse directionsParser "test" x) $ words xs
+--parsedMoves' xs = map (\x -> parse directionsParser "test" x) $ words xs
+
+directionsParser :: Parser [Move]
+directionsParser = do
+  xs <- many directionParser
+  return $ xs
+
+directionParser :: Parser Move
+directionParser = let
+  cA a = case a of
+    'U' -> Up
+    'D' -> Down
+    'L' -> AoC201602.Left
+    'R' -> AoC201602.Right
+  in do
+  t <- letter
+  return $ cA t
+
+-- Input data
+smallDirections :: String
+smallDirections = "ULL RRDDD LURDL UUUUD"
+
+inputDirections :: String
+inputDirections = "DUURRDRRURUUUDLRUDDLLLURULRRLDULDRDUULULLUUUDRDUDDURRULDRDDDUDDURLDLLDDRRURRUUUDDRUDDLLDDDURLRDDDULRDUDDRDRLRDUULDLDRDLUDDDLRDRLDLUUUDLRDLRUUUDDLUURRLLLUUUUDDLDRRDRDRLDRLUUDUDLDRUDDUDLLUUURUUDLULRDRULURURDLDLLDLLDUDLDRDULLDUDDURRDDLLRLLLLDLDRLDDUULRDRURUDRRRDDDUULRULDDLRLLLLRLLLLRLURRRLRLRDLULRRLDRULDRRLRURDDLDDRLRDLDRLULLRRUDUURRULLLRLRLRRUDLRDDLLRRUDUDUURRRDRDLDRUDLDRDLUUULDLRLLDRULRULLRLRDRRLRLULLRURUULRLLRRRDRLULUDDUUULDULDUDDDUDLRLLRDRDLUDLRLRRDDDURUUUDULDLDDLDRDDDLURLDRLDURUDRURDDDDDDULLDLDLU LURLRUURDDLDDDLDDLULRLUUUDRDUUDDUDLDLDDLLUDURDRDRULULLRLDDUDRRDRUDLRLDDDURDUURLUURRLLDRURDRLDURUDLRLLDDLLRDRRLURLRRUULLLDRLULURULRRDLLLDLDLRDRRURUUUDUDRUULDLUDLURLRDRRLDRUDRUDURLDLDDRUULDURDUURLLUDRUUUUUURRLRULUDRDUDRLLDUDUDUULURUURURULLUUURDRLDDRLUURDLRULDRRRRLRULRDLURRUULURDRRLDLRUURUDRRRDRURRLDDURLUDLDRRLDRLLLLRDUDLULUDRLLLDULUDUULLULLRLURURURDRRDRUURDULRDDLRULLLLLLDLLURLRLLRDLLRLUDLRUDDRLLLDDUDRLDLRLDUDU RRDDLDLRRUULRDLLURLRURDLUURLLLUUDDULLDRURDUDRLRDRDDUUUULDLUDDLRDULDDRDDDDDLRRDDDRUULDLUDUDRRLUUDDRUDLUUDUDLUDURDURDLLLLDUUUUURUUURDURUUUUDDURULLDDLDLDLULUDRULULULLLDRLRRLLDLURULRDLULRLDRRLDDLULDDRDDRURLDLUULULRDRDRDRRLLLURLLDUUUDRRUUURDLLLRUUDDDULRDRRUUDDUUUDLRRURUDDLUDDDUDLRUDRRDLLLURRRURDRLLULDUULLURRULDLURRUURURRLRDULRLULUDUULRRULLLDDDDURLRRRDUDULLRRDURUURUUULUDLDULLUURDRDRRDURDLUDLULRULRLLURULDRUURRRRDUDULLLLLRRLRUDDUDLLURLRDDLLDLLLDDUDDDDRDURRL LLRURUDUULRURRUDURRDLUUUDDDDURUUDLLDLRULRUUDUURRLRRUDLLUDLDURURRDDLLRUDDUDLDUUDDLUUULUUURRURDDLUDDLULRRRUURLDLURDULULRULRLDUDLLLLDLLLLRLDLRLDLUULLDDLDRRRURDDRRDURUURLRLRDUDLLURRLDUULDRURDRRURDDDDUUUDDRDLLDDUDURDLUUDRLRDUDLLDDDDDRRDRDUULDDLLDLRUDULLRRLLDUDRRLRURRRRLRDUDDRRDDUUUDLULLRRRDDRUUUDUUURUULUDURUDLDRDRLDLRLLRLRDRDRULRURLDDULRURLRLDUURLDDLUDRLRUDDURLUDLLULDLDDULDUDDDUDRLRDRUUURDUULLDULUUULLLDLRULDULUDLRRURDLULUDUDLDDRDRUUULDLRURLRUURDLULUDLULLRD UURUDRRDDLRRRLULLDDDRRLDUDLRRULUUDULLDUDURRDLDRRRDLRDUUUDRDRRLLDULRLUDUUULRULULRUDURDRDDLDRULULULLDURULDRUDDDURLLDUDUUUULRUULURDDDUUUURDLDUUURUDDLDRDLLUDDDDULRDLRUDRLRUDDURDLDRLLLLRLULRDDUDLLDRURDDUDRRLRRDLDDUDRRLDLUURLRLLRRRDRLRLLLLLLURULUURRDDRRLRLRUURDLULRUUDRRRLRLRULLLLUDRULLRDDRDDLDLDRRRURLURDDURRLUDDULRRDULRURRRURLUURDDDUDLDUURRRLUDUULULURLRDDRULDLRLLUULRLLRLUUURUUDUURULRRRUULUULRULDDURLDRRULLRDURRDDDLLUDLDRRRRUULDDD"
