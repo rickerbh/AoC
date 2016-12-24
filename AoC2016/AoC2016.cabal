@@ -18,6 +18,7 @@ library
   exposed-modules:     AoC201601
                      , AoC201602
                      , AoC201603
+                     , AoC201604
                      , Str
   build-depends:       base >= 4.7 && < 5
                      , containers
