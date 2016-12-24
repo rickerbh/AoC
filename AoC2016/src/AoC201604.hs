@@ -2,15 +2,10 @@
 
 module AoC201604
   ( runDay,
-    roomsParser,
-    smallInput,
-    letterFrequency,
-    frequencySort,
-    expectedChecksum, 
-    Room(..),
   ) where
 
-import Data.List (sortBy)
+import Caesar (caesar)
+import Data.List (isInfixOf, sortBy)
 import Data.Map (toList, fromListWith)
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
@@ -20,17 +15,40 @@ import Text.Parsec.String
 
 runDay :: IO ()
 runDay = do
-  let part1 = calculateValidSectorSum fullInput
+  let part1 = executePart1 fullInput
+  let part2 = executePart2 fullInput
   putStrLn $ "4) The sum of valid rooms is " ++ (show part1) ++ "."
+  putStrLn $ "4) The sector ID of the room where the North Pole objects are is " ++ (show part2) ++ "."
 
 type Checksum = String
 type SectorId = Int
 data Room = Room { letters :: String, sectorId :: SectorId, checksum :: Checksum } deriving Show
 
+-- Part 2
+-- Step 1 - steal caesar cipher from http://www.rosettacode.org/wiki/Caesar_cipher#Haskell
+-- Then...
+
+executePart2 :: String -> String
+executePart2 xs =
+  case parsedRooms xs of
+    Prelude.Left msg -> show msg
+    Prelude.Right rooms -> show $ sectorId $ head $ filterRoomName "northpoleobjectstorage" $ map decryptRoomName $ validRooms rooms
+
+filterRoomName :: String -> [Room] -> [Room]
+filterRoomName s r = filter (\x -> isInfixOf s $ letters x) r
+
+decryptRoomName :: Room -> Room
+decryptRoomName r = let
+  decryptedName = caesar (sectorId r) $ letters r
+  in Room decryptedName (sectorId r) (checksum r)
+
+roomNames :: [Room] -> [String]
+roomNames xs = map letters xs
+
 -- Part 1
 
-calculateValidSectorSum :: String -> String
-calculateValidSectorSum xs =
+executePart1 :: String -> String
+executePart1 xs =
   case parsedRooms xs of
     Prelude.Left msg -> show msg
     Prelude.Right rooms -> show $ sectorSums $ validRooms rooms
@@ -88,6 +106,9 @@ lettersParser = do
   return s
 
 -- Input data
+
+cipherTestInput :: String
+cipherTestInput = [str|qzmt-zixmtkozy-ivhz-343[whatever]|]
 
 smallInput :: String
 smallInput = [str|aaaaa-bbb-z-y-x-123[abxyz]
