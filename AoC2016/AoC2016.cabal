@@ -19,11 +19,14 @@ library
                      , AoC201602
                      , AoC201603
                      , AoC201604
+                     , AoC201605
                      , Caesar
                      , Str
   build-depends:       base >= 4.7 && < 5
+                     , bytestring
                      , containers
                      , parsec
+                     , pureMD5
                      , template-haskell
   default-language:    Haskell2010
 
