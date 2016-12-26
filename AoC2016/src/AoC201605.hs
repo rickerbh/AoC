@@ -12,7 +12,7 @@ import qualified Data.Map.Lazy as Map
 
 runDay :: IO ()
 runDay = do
-  putStrLn "Next answers take a while to calculate, so these answers are pre-caluclated."
+  putStrLn "Next answers take a while to calculate, so these answers are pre-calculated."
   putStrLn "Uncomment in the source to force execution."
   putStrLn "5) The first password is 801b56a7."
   --putStrLn $ "5) The password is " ++ (take 8 $ findPassword realInput ) ++ "."
