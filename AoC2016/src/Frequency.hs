@@ -1,13 +1,17 @@
 module Frequency
   ( frequencySort,
     letterFrequency,
+    reverseFrequencySort,
   ) where
 
 import Data.List (sortBy)
 import Data.Map (toList, fromListWith)
 
 frequencySort :: (Ord k, Ord a) => [(k, a)] -> [(k, a)]
-frequencySort xs = reverse $ sortBy frequencySort' xs
+frequencySort xs = reverse $ reverseFrequencySort xs
+
+reverseFrequencySort :: (Ord k, Ord a) => [(k, a)] -> [(k, a)]
+reverseFrequencySort xs = sortBy frequencySort' xs
 
 frequencySort' :: (Ord k, Ord a) => (k, a) -> (k, a) -> Ordering
 frequencySort' a b

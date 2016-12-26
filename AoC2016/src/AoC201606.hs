@@ -13,7 +13,20 @@ import Text.Parsec.String
 runDay :: IO ()
 runDay = do
   let part1 = executePart1 fullInput
+  let part2 = executePart2 fullInput
   putStrLn $ "6) The error corrected message is " ++ part1 ++ "."
+  putStrLn $ "6) The error corrected message for part 2 is " ++ part2 ++ "."
+
+-- Part 2
+
+executePart2 :: String -> String
+executePart2 input =
+  case parsedInput input of
+    Prelude.Left msg -> show msg
+    Prelude.Right words -> show $ map fst $ map head $ map generateFrequencies' $ transpose words
+
+generateFrequencies' :: (Ord k, Ord a, Num a) => [k] -> [(k, a)]
+generateFrequencies' xs = reverseFrequencySort $ letterFrequency xs
 
 -- Part 1
 
