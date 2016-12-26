@@ -21,6 +21,7 @@ library
                      , AoC201604
                      , AoC201605
                      , Caesar
+                     , Frequency
                      , Str
   build-depends:       base >= 4.7 && < 5
                      , bytestring
