@@ -12,5 +12,4 @@ main = do
   AoC02.runDay
   AoC03.runDay
   AoC04.runDay
-  putStrLn "Next step takes a while..."
   AoC05.runDay
