@@ -13,9 +13,54 @@ import Text.Parsec.String
 runDay :: IO ()
 runDay = do
   let tlsCount = execute addressesParser fullInput
+  let sslCount = execute2 addressesParser fullInput
   putStrLn $ "7) The count of transmissions with TLS is " ++ (show tlsCount) ++ "."
+  putStrLn $ "7) The count of transmissions with SSL is " ++ (show sslCount) ++ "."
 
 data Ip7Address = Ip7Address { primaries :: [String], hypernets :: [String] } deriving Show
+
+-- Part 2
+
+execute2 p xs =
+  case parse p "test" xs of
+    Prelude.Left msg -> show msg
+    Prelude.Right addresses -> show $ length $ filter supportsSSL $ addressesCombiner addresses
+
+supportsSSL :: Ip7Address -> Bool
+supportsSSL address = let
+  myAbas = abas address
+  hasBab = anyTrue $ map (\aba -> isBab aba address) myAbas
+  in hasBab
+
+isBab :: [Char] -> Ip7Address -> Bool
+isBab aba address = anyTrue $ map (babChecker aba) $ possibleBABs address
+
+anyTrue :: Foldable t => t Bool -> Bool
+anyTrue xs = any (True ==) xs
+
+babChecker :: Eq a => [a] -> [a] -> Bool
+babChecker aba x = x == babMaker aba
+
+babMaker :: [a] -> [a]
+babMaker aba = [(head $ drop 1 aba), head aba, (head $ drop 1 aba)]
+
+abas :: Ip7Address -> [String]
+abas address = filter abaChecker $ possibleABAs address
+
+hasABA :: Ip7Address -> Bool
+hasABA address = 0 < (length $ abas address)
+
+abaChecker :: Eq a => [a] -> Bool
+abaChecker x = x == (reverse x) && (head x) /= (head $ drop 1 x)
+
+possibleBABs :: Ip7Address -> [String]
+possibleBABs address = possibles $ hypernets address
+
+possibleABAs :: Ip7Address -> [String]
+possibleABAs address = possibles $ primaries address
+
+possibles :: [String] -> [String]
+possibles xs = concat $ map (windows 3) xs
 
 -- Part 1
 
@@ -26,12 +71,12 @@ execute p xs =
 
 addressSupportsTLS :: Ip7Address -> Bool
 addressSupportsTLS x = let
-  pAbba = any (True ==)$ map isAbba $ primaries x
+  pAbba = anyTrue $ map isAbba $ primaries x
   hAbba = all (False ==) $ map isAbba $ hypernets x
   in all (True ==) $ pAbba : [hAbba]
 
 isAbba :: String -> Bool
-isAbba xs = any (True ==) $ map abbaChecker $ possibleAbbas xs
+isAbba xs = anyTrue  $ map abbaChecker $ possibleAbbas xs
 
 abbaChecker :: Eq a => ([a], [a]) -> Bool
 abbaChecker x = ((fst x) == (reverse $ snd x)) && ((fst x) /= (snd x))
@@ -81,6 +126,12 @@ hypernetParser = do
   return h
   
 -- Input Data
+
+part2TestInput :: String
+part2TestInput = [str|aba[bab]xyz
+xyx[xyx]xyx
+aaa[kek]eke
+zazbz[bzb]cdb|]
 
 smallInput :: String
 smallInput = [str|abba[mnop]qrst
