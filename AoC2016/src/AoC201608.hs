@@ -4,6 +4,8 @@ module AoC201608
   ( runDay,
   ) where
 
+import Data.List (sortBy)
+import Data.List.Split (chunksOf)
 import Data.Maybe (isJust, fromJust)
 import Data.Char (digitToInt)
 import Str
@@ -13,7 +15,29 @@ import Text.Parsec.String
 runDay :: IO ()
 runDay = do
   let part1Result = execute fullInput fullGrid
+  let part2Result = execute' fullInput fullGrid
   putStrLn $ "8) There are " ++ part1Result ++ " filled pixels."
+  putStrLn "8) Letters are:"
+  putStrLn ""
+  putStr part2Result
+  putStrLn ""
+  putStrLn ""
+
+-- Part 2
+
+execute' :: String -> [((Int, Int), Int)] -> String
+execute' xs grid =
+    case parsedInstructions xs of
+    Prelude.Left msg -> show msg
+    Prelude.Right instructions -> unlines $ chunksOf 50 $ convertGridValuesForPrinting $ sortGrid $ foldl (\acc x -> runInstruction acc x) grid instructions
+
+convertGridValuesForPrinting :: (Eq a, Num a) => [(t, a)] -> String
+convertGridValuesForPrinting grid = map (\(_, v) -> if v == 0 then ' ' else '#') grid
+
+sortGrid :: (Ord a) => [((a, a), t)] -> [((a, a), t)]
+sortGrid grid = sortBy (\((x, y), v) ((x', y'), v') -> if y `compare` y' == EQ then x `compare` x' else y `compare` y') grid
+
+-- Part 1
 
 execute :: String -> [((Int, Int), Int)] -> String
 execute xs grid =
