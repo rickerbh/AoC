@@ -23,6 +23,7 @@ library
                      , AoC201606
                      , AoC201607
                      , AoC201608
+                     , AoC201609
                      , Caesar
                      , Frequency
                      , Str

@@ -8,6 +8,7 @@ import qualified AoC201605 as AoC05
 import qualified AoC201606 as AoC06
 import qualified AoC201607 as AoC07
 import qualified AoC201608 as AoC08
+import qualified AoC201609 as AoC09
 
 main :: IO ()
 main = do
@@ -19,3 +20,4 @@ main = do
   AoC06.runDay
   AoC07.runDay
   AoC08.runDay
+  AoC09.runDay
