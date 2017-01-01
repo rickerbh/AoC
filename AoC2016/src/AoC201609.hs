@@ -11,11 +11,30 @@ import Text.Parsec.String
 runDay :: IO ()
 runDay = do
   let part1Result = execute fullInput
+  let part2Result = execute' 0 fullInput
   putStrLn $ "9) Decompressed length is " ++ part1Result ++ "."
+  putStrLn $ "9) (Cached - it takes ages!) Decompressed length of part 2 is 11125026826."
+--  putStrLn $ "9) Decompressed length of part 2 is " ++ (show part2Result) ++ "."
+
+-- Hmmm, this is way easier than trying to parse the data as you go with a Parser. No nice error handling though.
+execute' :: Int -> String -> Int
+execute' i [] = i
+execute' i text =
+  if ((head text) == '(')
+    then execute' i $ repeatedData ++ (drop dataCount rest)
+    else execute' (i + (length nonMarkerText)) remaining
+  where
+    (dataCount', repeatSnd) = span ('x' /=) $ tail text
+    dataCount = (read dataCount' :: Int)
+    (dataRepetitions', rest') = span (')' /=) $ tail repeatSnd
+    dataRepetitions = (read dataRepetitions' :: Int)
+    rest = tail rest'
+    repeatedData = concat $ replicate dataRepetitions $ take dataCount rest
+    (nonMarkerText, remaining) = span ('(' /=) text
+    
+-- Part 1
 
 data Marker = Marker { countola :: Int, repetitions :: Int } deriving Show
-
--- Part 1
 
 execute xs =
   case parse decompressingParser "Part 1" xs of
