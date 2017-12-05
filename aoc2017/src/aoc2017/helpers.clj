@@ -12,3 +12,6 @@
   (let [shift (mod n (count s))] 
     (concat (drop shift s) 
             (take shift s))))
+
+(defn parse-int [s]
+  (Integer/parseInt (re-find #"\A-?\d+" s)))

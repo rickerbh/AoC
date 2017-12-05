@@ -2,8 +2,8 @@
   (:require [clojure.test :refer :all]
             [aoc2017.day-1 :refer :all]))
 
-(deftest example-tests
-  (testing "Examples work"
+(deftest part-1-tests
+  (testing "Examples for part 1 work"
     (is (= 3 (solve 1122)))
     (is (= 4 (solve 1111)))
     (is (= 0 (solve 1234)))
