@@ -17,3 +17,9 @@ cabal.sandbox.config
 *.eventlog
 .stack-work/
 cabal.project.local
+.clj-kondo
+.lsp
+**/.DS_Store
+**/.vscode/*
+.ocamlformat
+.merlin-bak
